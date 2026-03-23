@@ -1,0 +1,32 @@
+{
+  "servers": [
+    {
+      "id": "erp-server",
+      "name": "ERP 서버",
+      "url": "http://192.168.1.100:8080/health",
+      "checkInterval": 30000,
+      "description": "전사 ERP 시스템"
+    },
+    {
+      "id": "db-server",
+      "name": "데이터베이스 서버",
+      "url": "http://192.168.1.50:3306/ping",
+      "checkInterval": 60000,
+      "description": "메인 데이터베이스 서버"
+    },
+    {
+      "id": "file-server",
+      "name": "파일 서버",
+      "url": "http://fileserver.company.local",
+      "checkInterval": 120000,
+      "description": "문서 저장 서버"
+    },
+    {
+      "id": "web-server",
+      "name": "웹 서버",
+      "url": "http://intranet.company.local",
+      "checkInterval": 45000,
+      "description": "사내 인트라넷 웹 서버"
+    }
+  ]
+}

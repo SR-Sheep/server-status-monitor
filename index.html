@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서버 상태 모니터링 대시보드</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>서버 상태 모니터링 대시보드</h1>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-label">총 서버</div>
+                    <div class="stat-value" id="total-servers">0</div>
+                </div>
+                <div class="stat-card online">
+                    <div class="stat-label">온라인</div>
+                    <div class="stat-value" id="online-servers">0</div>
+                </div>
+                <div class="stat-card offline">
+                    <div class="stat-label">오프라인</div>
+                    <div class="stat-value" id="offline-servers">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">가동률</div>
+                    <div class="stat-value" id="uptime-percentage">0%</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button id="refresh-button" class="refresh-btn">
+                    <span class="refresh-icon">⟳</span> 새로고침
+                </button>
+                <div class="last-updated">
+                    마지막 업데이트: <span id="last-updated-time">-</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="server-grid" id="server-grid">
+                <!-- Server cards will be dynamically inserted here -->
+            </div>
+        </main>
+
+        <footer>
+            <p>폐쇄망 서버 상태 모니터링 시스템 v1.0</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
