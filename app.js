@@ -36,7 +36,7 @@ class ServerMonitor {
             throw error;
         }
     }
-
+    //UI 설정
     setupUI() {
         const serverGrid = document.getElementById('server-grid');
         serverGrid.innerHTML = '';
@@ -48,6 +48,7 @@ class ServerMonitor {
         this.updateStats();
     }
 
+    //서버 카드 생성
     createServerCard(server) {
         const card = document.createElement('div');
         card.className = 'server-card checking';
@@ -77,6 +78,7 @@ class ServerMonitor {
         return `${minutes}분`;
     }
 
+    //서버 상태 확인
     async checkServerStatus(server) {
         const startTime = Date.now();
 
@@ -123,6 +125,7 @@ class ServerMonitor {
         }
     }
 
+    //이미지로 서버 상태 확인
     async checkServerWithImage(server, startTime) {
         return new Promise((resolve) => {
             const img = new Image();
@@ -176,6 +179,7 @@ class ServerMonitor {
         });
     }
 
+    //서버 상태 업데이트
     async updateServerStatus(server) {
         const status = await this.checkServerStatus(server);
         this.serverStatuses.set(server.id, status);
@@ -184,6 +188,7 @@ class ServerMonitor {
         this.updateLastUpdatedTime();
     }
 
+    //서버 카드 업데이트
     updateServerCard(serverId, status) {
         const card = document.getElementById(`server-${serverId}`);
         if (!card) return;
@@ -233,6 +238,7 @@ class ServerMonitor {
         document.getElementById('last-updated-time').textContent = this.formatTime(now);
     }
 
+    //모니터링 시작
     startMonitoring() {
         // 각 서버에 대해 즉시 확인 및 주기적 확인 설정
         this.servers.forEach(server => {
@@ -246,20 +252,18 @@ class ServerMonitor {
 
             this.intervals.set(server.id, interval);
         });
-
-        console.log('모니터링을 시작했습니다.');
     }
 
+    //모니터링 중지
     stopMonitoring() {
         this.intervals.forEach((interval, serverId) => {
             clearInterval(interval);
         });
         this.intervals.clear();
-        console.log('모니터링을 중지했습니다.');
     }
 
+    //모든 서버 상태 새로고침
     refreshAll() {
-        console.log('모든 서버 상태를 새로고침합니다.');
         this.servers.forEach(server => {
             // 카드를 확인 중 상태로 초기화
             const card = document.getElementById(`server-${server.id}`);
@@ -279,7 +283,8 @@ class ServerMonitor {
             this.updateServerStatus(server);
         });
     }
-
+    
+    //이벤트 리스너 설정
     setupEventListeners() {
         const refreshButton = document.getElementById('refresh-button');
         refreshButton.addEventListener('click', () => {
@@ -293,6 +298,7 @@ class ServerMonitor {
         });
     }
 
+    //에러 표시
     showError(title, message) {
         const serverGrid = document.getElementById('server-grid');
         serverGrid.innerHTML = `
