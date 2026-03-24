@@ -61,7 +61,7 @@ class ServerMonitor {
                     <div class="server-url">${server.url}</div>
                 </div>
             </div>
-            <div class="error-message" id="error-${server.id}" style="display: none;"></div>
+            <div class="status-message checking" id="status-${server.id}">접속 확인 중...</div>
         `;
         // 카드 클릭 시 URL로 이동
         card.addEventListener('click', () => {
@@ -191,13 +191,20 @@ class ServerMonitor {
         // 카드 상태 클래스 업데이트
         card.className = `server-card ${status.status}`;
 
-        // 에러 메시지 업데이트
-        const errorEl = document.getElementById(`error-${serverId}`);
-        if (status.error) {
-            errorEl.textContent = `${status.error} (${status.responseTime}ms)`;
-            errorEl.style.display = 'block';
-        } else {
-            errorEl.style.display = 'none';
+        // 상태 메시지 업데이트
+        const statusEl = document.getElementById(`status-${serverId}`);
+        if (status.status === 'checking') {
+            statusEl.textContent = '접속 확인 중...';
+            statusEl.className = 'status-message checking';
+            statusEl.style.display = 'block';
+        } else if (status.status === 'online') {
+            statusEl.textContent = `접속 확인 완료 (${status.responseTime}ms)`;
+            statusEl.className = 'status-message online';
+            statusEl.style.display = 'block';
+        } else if (status.status === 'offline') {
+            statusEl.textContent = `${status.error} (${status.responseTime}ms)`;
+            statusEl.className = 'status-message offline';
+            statusEl.style.display = 'block';
         }
     }
     //시간 형식 시간:분:초
@@ -277,7 +284,7 @@ class ServerMonitor {
             <div class="error-container">
                 <h2>${title}</h2>
                 <p>${message}</p>
-                <p style="margin-top: 15px;">servers.json 파일이 올바른 위치에 있는지 확인하세요.</p>
+                <p style="margin-top: 15px;">servers.js 파일이 올바른 위치에 있는지 확인하세요.</p>
             </div>
         `;
     }
