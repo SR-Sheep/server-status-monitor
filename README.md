@@ -6,138 +6,73 @@
 
 - **순수 HTML/CSS/JavaScript**: 외부 라이브러리 및 npm 없이 작동
 - **폐쇄망 지원**: 인터넷 연결 없이 내부망에서 실행 가능
-- **실시간 모니터링**: 설정된 간격마다 자동으로 서버 상태 확인
+- **웹 서버 불필요**: HTML 파일을 더블클릭만 해도 실행 가능
+- **실시간 모니터링**: 30초 간격으로 자동 서버 상태 확인
+- **다크 테마**: 깔끔한 다크 UI 디자인
 - **반응형 디자인**: 데스크톱, 태블릿, 모바일 모두 지원
-- **CORS 문제 해결**: no-cors 모드 및 Image ping 방식으로 폐쇄망 서버 확인
-- **경량**: 전체 프로젝트 약 13.5KB (의존성 없음)
+- **경량**: 전체 프로젝트 약 20KB (의존성 없음)
 
 ## 주요 기능
 
 ### 실시간 대시보드
-- 서버별 상태 카드 (온라인/오프라인)
-- 응답 시간 측정 (밀리초)
-- 마지막 확인 시간 표시
-- 전체 통계 (총 서버, 온라인, 오프라인, 가동률)
+- 왼쪽 사이드바: 전체 통계 (총 서버, 온라인, 오프라인, 가동률)
+- 오른쪽 메인 영역: 서버 상태 카드 (색상 동그라미로 상태 표시)
+- 서버 카드 클릭 시 해당 URL 새 탭에서 열기
 
 ### 자동 모니터링
-- 각 서버마다 개별 확인 간격 설정 가능
+- 모든 서버를 30초 간격으로 자동 확인
 - 백그라운드에서 자동으로 주기적 확인
 - 수동 새로고침 버튼 제공
 
-### 설정 관리
-- JSON 파일로 간단한 서버 설정
-- 코드 수정 없이 모니터링 대상 변경
-
-## 시스템 요구사항
-
-- 웹 브라우저 (Chrome, Firefox, Edge 등)
-- 로컬 웹 서버 (권장) 또는 파일 시스템 접근 권한
+### 간단한 설정
+- servers.js 파일로 서버 목록 관리
+- 서버 이름과 URL만 입력하면 끝!
 
 ## 설치 및 실행
 
-### 방법 1: 로컬 웹 서버 사용 (권장)
+### 가장 간단한 방법 (권장)
 
-Python이 설치되어 있는 경우:
+Windows 탐색기에서 `index.html` 파일을 더블클릭하여 브라우저로 열기
 
+### 다른 방법들
+
+**Python 웹 서버 사용:**
 ```bash
 cd C:\home\server-status-monitor
-
-# Python 2
-python -m SimpleHTTPServer 8080
-
-# Python 3
 python -m http.server 8080
 ```
+그 다음 브라우저에서 `http://localhost:8080` 접속
 
-그 다음 브라우저에서 접속:
-```
-http://localhost:8080
-```
-
-### 방법 2: 직접 HTML 파일 열기
-
-Windows 탐색기에서:
-```
-C:\home\server-status-monitor\index.html
-```
-파일을 더블클릭하여 기본 브라우저에서 열기
-
-**주의**: 일부 브라우저에서 로컬 파일 프로토콜(`file://`)의 보안 제한으로 fetch API가 작동하지 않을 수 있습니다.
-
-### 방법 3: 인트라넷 웹 서버에 배포
-
-회사 내부 웹 서버 (IIS, Apache, Nginx 등)에 파일들을 업로드하여 사용:
-
-```
-\\intranet-server\www\server-monitor\
-```
+**인트라넷 웹 서버에 배포:**
+회사 내부 웹 서버 (IIS, Apache, Nginx 등)에 파일들을 업로드
 
 ## 설정 방법
 
-### servers.json 파일 수정
+### servers.js 파일 수정
 
-모니터링할 서버를 추가하거나 수정하려면 `servers.json` 파일을 편집하세요:
+모니터링할 서버를 추가하거나 수정하려면 `servers.js` 파일을 편집하세요:
 
-```json
-{
-  "servers": [
+```javascript
+const SERVERS = [
     {
-      "id": "unique-server-id",
-      "name": "서버 이름",
-      "url": "http://서버주소:포트",
-      "checkInterval": 30000,
-      "description": "서버 설명 (선택사항)"
+        name: "ERP 서버",
+        url: "http://192.168.1.100:8080"
+    },
+    {
+        name: "데이터베이스 서버",
+        url: "http://192.168.1.50:3306"
     }
-  ]
-}
+];
 ```
 
 #### 설정 항목 설명
 
 | 항목 | 설명 | 예시 |
 |------|------|------|
-| `id` | 고유 식별자 (영문, 숫자, 하이픈) | `"erp-server"` |
 | `name` | 화면에 표시될 서버 이름 | `"ERP 서버"` |
 | `url` | 확인할 서버 URL | `"http://192.168.1.100:8080"` |
-| `checkInterval` | 확인 간격 (밀리초) | `30000` (30초) |
-| `description` | 서버 설명 (선택사항) | `"전사 ERP 시스템"` |
 
-#### 확인 간격 예시
-
-- 10초: `10000`
-- 30초: `30000`
-- 1분: `60000`
-- 5분: `300000`
-
-### 예시 설정
-
-```json
-{
-  "servers": [
-    {
-      "id": "erp-server",
-      "name": "ERP 서버",
-      "url": "http://192.168.1.100:8080/health",
-      "checkInterval": 30000,
-      "description": "전사 ERP 시스템"
-    },
-    {
-      "id": "db-server",
-      "name": "데이터베이스 서버",
-      "url": "http://192.168.1.50:3306/ping",
-      "checkInterval": 60000,
-      "description": "메인 데이터베이스 서버"
-    },
-    {
-      "id": "file-server",
-      "name": "파일 서버",
-      "url": "http://fileserver.company.local",
-      "checkInterval": 120000,
-      "description": "문서 저장 서버"
-    }
-  ]
-}
-```
+정말 간단합니다! 이름과 URL만 입력하면 됩니다.
 
 ## 폐쇄망 환경 고려사항
 
@@ -152,24 +87,7 @@ C:\home\server-status-monitor\index.html
    - 서버의 favicon.ico 파일 접근을 시도
    - 이미지 로드 성공/실패로 서버 상태 판단
 
-### 로컬 파일 제약
-
-브라우저의 보안 정책으로 `file://` 프로토콜에서는 fetch API가 제한됩니다.
-
-**해결 방법**:
-1. 로컬 웹 서버 사용 (위 실행 방법 참조)
-2. 인트라넷 웹 서버에 배포
-3. 브라우저 보안 설정 조정 (개발 환경만)
-
 ## 트러블슈팅
-
-### 문제: servers.json을 불러올 수 없습니다
-
-**원인**: 파일 경로 문제 또는 브라우저 보안 정책
-
-**해결**:
-- servers.json 파일이 index.html과 같은 폴더에 있는지 확인
-- 로컬 웹 서버를 통해 실행 (`python -m http.server`)
 
 ### 문제: 모든 서버가 오프라인으로 표시됨
 
@@ -187,7 +105,7 @@ C:\home\server-status-monitor\index.html
 
 **해결**:
 - 서버 관리자에게 문의
-- checkInterval을 더 길게 설정하여 부하 감소
+- 네트워크 상태 확인
 
 ## 프로젝트 구조
 
@@ -195,16 +113,16 @@ C:\home\server-status-monitor\index.html
 C:\home\server-status-monitor\
 ├── .gitignore           # Git 제외 파일
 ├── README.md            # 이 문서
-├── servers.json         # 서버 설정 파일
+├── servers.js           # 서버 목록 파일 ⭐
 ├── index.html           # 메인 HTML 파일
-├── style.css            # 스타일시트
+├── style.css            # 스타일시트 (다크 테마)
 └── app.js               # JavaScript 로직
 ```
 
 ## 기술 스택
 
 - **HTML5**: 웹 구조
-- **CSS3**: 반응형 디자인 및 애니메이션
+- **CSS3**: 다크 테마 디자인 및 애니메이션
 - **JavaScript (ES6+)**:
   - Fetch API (HTTP 요청)
   - Promises/Async-Await (비동기 처리)
@@ -223,6 +141,12 @@ C:\home\server-status-monitor\
 MIT License
 
 ## 버전 정보
+
+- **v2.0.0** (2026-03-24)
+  - 다크 테마 UI 적용
+  - 서버 목록을 servers.js로 간소화 (name, url만 입력)
+  - 웹 서버 없이 HTML 파일 직접 실행 가능
+  - 서버 카드 클릭으로 URL 열기 기능 추가
 
 - **v1.0.0** (2026-03-23)
   - 최초 릴리스

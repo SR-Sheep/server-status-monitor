@@ -8,15 +8,11 @@
 </head>
 <body>
     <div class="layout">
-        <!-- Left Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h1>서버 모니터링</h1>
             </div>
-
             <div class="stats-section">
-                <h2>통계</h2>
-
                 <div class="stat-item total">
                     <div class="stat-icon">●</div>
                     <div>
@@ -49,7 +45,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="sidebar-footer">
                 <button id="refresh-button" class="refresh-btn">
                     <span class="refresh-icon">⟳</span> 새로고침
@@ -59,15 +54,12 @@
                 </div>
             </div>
         </aside>
-
-        <!-- Main Content -->
         <main class="main-content">
-            <div class="server-grid" id="server-grid">
-                <!-- Server cards will be dynamically inserted here -->
-            </div>
+            <div class="server-grid" id="server-grid"></div>
         </main>
     </div>
 
+    <script src="servers.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

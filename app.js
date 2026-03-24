@@ -1,43 +1,5 @@
-// Server Status Monitoring Application
-// Pure JavaScript - No external dependencies
-
-// ========================================
-// 서버 설정 (여기서 모니터링할 서버를 수정하세요)
-// ========================================
-const SERVER_CONFIG = {
-    servers: [
-        {
-            id: "erp-server",
-            name: "ERP 서버",
-            url: "http://192.168.1.100:8080/health",
-            checkInterval: 30000,
-            description: "전사 ERP 시스템"
-        },
-        {
-            id: "db-server",
-            name: "데이터베이스 서버",
-            url: "http://192.168.1.50:3306/ping",
-            checkInterval: 60000,
-            description: "메인 데이터베이스 서버"
-        },
-        {
-            id: "file-server",
-            name: "파일 서버",
-            url: "http://fileserver.company.local",
-            checkInterval: 120000,
-            description: "문서 저장 서버"
-        },
-        {
-            id: "web-server",
-            name: "웹 서버",
-            url: "http://intranet.company.local",
-            checkInterval: 45000,
-            description: "사내 인트라넷 웹 서버"
-        }
-    ]
-};
-
 class ServerMonitor {
+    //생성자
     constructor() {
         this.servers = [];
         this.serverStatuses = new Map();
@@ -45,6 +7,7 @@ class ServerMonitor {
         this.init();
     }
 
+    //초기화
     async init() {
         try {
             this.loadServersConfig();
@@ -55,18 +18,21 @@ class ServerMonitor {
             this.showError('초기화 실패', error.message);
         }
     }
-
+    //서버 설정 로드
     loadServersConfig() {
         try {
-            this.servers = SERVER_CONFIG.servers || [];
-
-            if (this.servers.length === 0) {
+            if (!SERVERS || SERVERS.length === 0) {
                 throw new Error('모니터링할 서버가 설정되어 있지 않습니다.');
             }
-
-            console.log(`${this.servers.length}개의 서버 설정을 불러왔습니다.`);
+            // 서버 목록을 내부 형식으로 변환
+            this.servers = SERVERS.map((server, index) => ({
+                id: `server-${index}`,
+                name: server.name,
+                url: server.url,
+                checkInterval: CHECK_INTERVAL
+            }));
         } catch (error) {
-            console.error('설정 로드 오류:', error);
+            console.error('서버 목록 로드 오류:', error);
             throw error;
         }
     }
@@ -74,7 +40,6 @@ class ServerMonitor {
     setupUI() {
         const serverGrid = document.getElementById('server-grid');
         serverGrid.innerHTML = '';
-
         this.servers.forEach(server => {
             const card = this.createServerCard(server);
             serverGrid.appendChild(card);
@@ -98,12 +63,10 @@ class ServerMonitor {
             </div>
             <div class="error-message" id="error-${server.id}" style="display: none;"></div>
         `;
-
         // 카드 클릭 시 URL로 이동
         card.addEventListener('click', () => {
             window.open(server.url, '_blank');
         });
-
         return card;
     }
 
@@ -120,7 +83,7 @@ class ServerMonitor {
         try {
             // CORS 이슈를 해결하기 위한 여러 방법 시도
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃
+            const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 
             try {
                 // 방법 1: fetch with no-cors mode
@@ -133,7 +96,6 @@ class ServerMonitor {
 
                 clearTimeout(timeoutId);
                 const responseTime = Date.now() - startTime;
-
                 // no-cors 모드에서는 opaque response를 받으므로
                 // 응답을 받았다는 것 자체가 서버가 온라인임을 의미
                 return {
@@ -145,7 +107,6 @@ class ServerMonitor {
                 };
             } catch (fetchError) {
                 clearTimeout(timeoutId);
-
                 // fetch 실패시 Image ping 방식으로 재시도
                 return await this.checkServerWithImage(server, startTime);
             }
@@ -174,7 +135,7 @@ class ServerMonitor {
                     error: '타임아웃',
                     timestamp: new Date()
                 });
-            }, 10000);
+            }, TIMEOUT);
 
             img.onload = () => {
                 clearTimeout(timeout);
@@ -191,7 +152,7 @@ class ServerMonitor {
                 clearTimeout(timeout);
                 // 이미지 에러도 서버가 응답했다는 의미일 수 있음
                 const responseTime = Date.now() - startTime;
-                if (responseTime < 5000) {
+                if (responseTime < TIMEOUT / 2) {
                     resolve({
                         status: 'online',
                         statusCode: 'responded',
@@ -239,14 +200,14 @@ class ServerMonitor {
             errorEl.style.display = 'none';
         }
     }
-
+    //시간 형식 시간:분:초
     formatTime(date) {
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
         const seconds = String(date.getSeconds()).padStart(2, '0');
         return `${hours}:${minutes}:${seconds}`;
     }
-
+    //통계 상태 업데이트
     updateStats() {
         const statuses = Array.from(this.serverStatuses.values());
         const total = this.servers.length;
@@ -259,7 +220,7 @@ class ServerMonitor {
         document.getElementById('offline-servers').textContent = offline;
         document.getElementById('uptime-percentage').textContent = `${uptime}%`;
     }
-
+    //실행 시간 업데이트
     updateLastUpdatedTime() {
         const now = new Date();
         document.getElementById('last-updated-time').textContent = this.formatTime(now);
