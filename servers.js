@@ -23,11 +23,83 @@ const SERVERS = [
         url: "https://www.google.com/"
     },
     {
-        name: "로컬 접속 확인",
-        url: "http://fileserver.company.local"
+        name: "바로ON Vite 서버",
+        url: "http://localhost:5173"
     },
     {
-        name: "웹 서버",
-        url: "http://intranet.company.local"
+        name: "바로ON 서버",
+        url: "http://localhost:8010"
+    },
+    {
+        name: "식단표",
+        url: "https://pf.kakao.com/_xbzpvb/112754227"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "존재하지 않는 서버",
+        url: "http://10.134.123.254:9999"
+    },
+    {
+        name: "식단표",
+        url: "https://pf.kakao.com/_xbzpvb/112754227"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "로컬 접속 확인",
+        url: "http://localhost:19191"
+    },
+    {
+        name: "존재하지 않는 서버",
+        url: "http://10.134.123.254:9999"
     }
 ];

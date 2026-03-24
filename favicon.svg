@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 밝은 배경 -->
+  <rect width="64" height="64" rx="12" fill="#ffffff"/>
+
+  <!-- 외곽 링 -->
+  <circle cx="32" cy="32" r="18" fill="none" stroke="#22c55e" stroke-width="3.5"/>
+
+  <!-- 내부 원 (펄스 효과) -->
+  <circle cx="32" cy="32" r="13" fill="#22c55e">
+    <animate attributeName="r" values="13;15;13" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="1;0.8;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- 체크마크 -->
+  <path d="M 25 32 L 30 37 L 39 28"
+        stroke="#ffffff"
+        stroke-width="3"
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>

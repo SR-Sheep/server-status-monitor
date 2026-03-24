@@ -83,14 +83,13 @@ class ServerMonitor {
         const startTime = Date.now();
 
         try {
-            // CORS 이슈를 해결하기 위한 여러 방법 시도
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 
             try {
-                // 방법 1: fetch with no-cors mode
+                // no-cors 모드로 GET 요청 (CORS preflight 회피)
                 const response = await fetch(server.url, {
-                    method: 'HEAD',
+                    method: 'GET',
                     mode: 'no-cors',
                     cache: 'no-cache',
                     signal: controller.signal
@@ -98,8 +97,8 @@ class ServerMonitor {
 
                 clearTimeout(timeoutId);
                 const responseTime = Date.now() - startTime;
-                // no-cors 모드에서는 opaque response를 받으므로
-                // 응답을 받았다는 것 자체가 서버가 온라인임을 의미
+
+                // no-cors 모드에서는 응답을 받았다는 것 자체가 서버 온라인을 의미
                 return {
                     status: 'online',
                     statusCode: 'opaque',
@@ -109,8 +108,16 @@ class ServerMonitor {
                 };
             } catch (fetchError) {
                 clearTimeout(timeoutId);
-                // fetch 실패시 Image ping 방식으로 재시도
-                return await this.checkServerWithImage(server, startTime);
+                const responseTime = Date.now() - startTime;
+
+                // fetch 실패 = 연결 거부 또는 타임아웃
+                return {
+                    status: 'offline',
+                    statusCode: null,
+                    responseTime: responseTime,
+                    error: '연결 실패',
+                    timestamp: new Date()
+                };
             }
         } catch (error) {
             const responseTime = Date.now() - startTime;
@@ -153,25 +160,15 @@ class ServerMonitor {
 
             img.onerror = () => {
                 clearTimeout(timeout);
-                // 이미지 에러도 서버가 응답했다는 의미일 수 있음
-                const responseTime = Date.now() - startTime;
-                if (responseTime < TIMEOUT / 2) {
-                    resolve({
-                        status: 'online',
-                        statusCode: 'responded',
-                        responseTime: responseTime,
-                        error: null,
-                        timestamp: new Date()
-                    });
-                } else {
-                    resolve({
-                        status: 'offline',
-                        statusCode: null,
-                        responseTime: responseTime,
-                        error: '연결 실패',
-                        timestamp: new Date()
-                    });
-                }
+                // 이미지 로드 실패 = 서버 오프라인으로 판단
+                // (빠른 연결 거부도 오프라인으로 처리)
+                resolve({
+                    status: 'offline',
+                    statusCode: null,
+                    responseTime: Date.now() - startTime,
+                    error: '연결 실패',
+                    timestamp: new Date()
+                });
             };
 
             // favicon이나 이미지 URL 시도
