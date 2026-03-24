@@ -261,6 +261,21 @@ class ServerMonitor {
     refreshAll() {
         console.log('모든 서버 상태를 새로고침합니다.');
         this.servers.forEach(server => {
+            // 카드를 확인 중 상태로 초기화
+            const card = document.getElementById(`server-${server.id}`);
+            if (card) {
+                card.className = 'server-card checking';
+            }
+
+            // 상태 메시지를 확인 중으로 초기화
+            const statusEl = document.getElementById(`status-${server.id}`);
+            if (statusEl) {
+                statusEl.textContent = '접속 확인 중...';
+                statusEl.className = 'status-message checking';
+                statusEl.style.display = 'block';
+            }
+
+            // 서버 상태 업데이트 시작
             this.updateServerStatus(server);
         });
     }
