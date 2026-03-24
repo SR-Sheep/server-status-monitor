@@ -1,6 +1,42 @@
 // Server Status Monitoring Application
 // Pure JavaScript - No external dependencies
 
+// ========================================
+// 서버 설정 (여기서 모니터링할 서버를 수정하세요)
+// ========================================
+const SERVER_CONFIG = {
+    servers: [
+        {
+            id: "erp-server",
+            name: "ERP 서버",
+            url: "http://192.168.1.100:8080/health",
+            checkInterval: 30000,
+            description: "전사 ERP 시스템"
+        },
+        {
+            id: "db-server",
+            name: "데이터베이스 서버",
+            url: "http://192.168.1.50:3306/ping",
+            checkInterval: 60000,
+            description: "메인 데이터베이스 서버"
+        },
+        {
+            id: "file-server",
+            name: "파일 서버",
+            url: "http://fileserver.company.local",
+            checkInterval: 120000,
+            description: "문서 저장 서버"
+        },
+        {
+            id: "web-server",
+            name: "웹 서버",
+            url: "http://intranet.company.local",
+            checkInterval: 45000,
+            description: "사내 인트라넷 웹 서버"
+        }
+    ]
+};
+
 class ServerMonitor {
     constructor() {
         this.servers = [];
@@ -11,7 +47,7 @@ class ServerMonitor {
 
     async init() {
         try {
-            await this.loadServersConfig();
+            this.loadServersConfig();
             this.setupUI();
             this.startMonitoring();
             this.setupEventListeners();
@@ -20,14 +56,9 @@ class ServerMonitor {
         }
     }
 
-    async loadServersConfig() {
+    loadServersConfig() {
         try {
-            const response = await fetch('servers.json');
-            if (!response.ok) {
-                throw new Error('servers.json 파일을 불러올 수 없습니다.');
-            }
-            const config = await response.json();
-            this.servers = config.servers || [];
+            this.servers = SERVER_CONFIG.servers || [];
 
             if (this.servers.length === 0) {
                 throw new Error('모니터링할 서버가 설정되어 있지 않습니다.');
@@ -59,33 +90,19 @@ class ServerMonitor {
 
         card.innerHTML = `
             <div class="server-header">
-                <div>
+                <div class="status-indicator"></div>
+                <div class="server-info-wrapper">
                     <div class="server-name">${server.name}</div>
                     <div class="server-url">${server.url}</div>
-                    ${server.description ? `<div class="server-description">${server.description}</div>` : ''}
-                </div>
-                <span class="status-badge checking">확인중</span>
-            </div>
-            <div class="server-info">
-                <div class="info-item">
-                    <div class="info-label">응답 시간</div>
-                    <div class="info-value" id="response-time-${server.id}">-</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">마지막 확인</div>
-                    <div class="info-value" id="last-check-${server.id}">-</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">상태 코드</div>
-                    <div class="info-value" id="status-code-${server.id}">-</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">확인 간격</div>
-                    <div class="info-value">${this.formatInterval(server.checkInterval)}</div>
                 </div>
             </div>
             <div class="error-message" id="error-${server.id}" style="display: none;"></div>
         `;
+
+        // 카드 클릭 시 URL로 이동
+        card.addEventListener('click', () => {
+            window.open(server.url, '_blank');
+        });
 
         return card;
     }
@@ -213,27 +230,10 @@ class ServerMonitor {
         // 카드 상태 클래스 업데이트
         card.className = `server-card ${status.status}`;
 
-        // 상태 뱃지 업데이트
-        const statusBadge = card.querySelector('.status-badge');
-        statusBadge.className = `status-badge ${status.status}`;
-        statusBadge.textContent = status.status === 'online' ? '온라인' : '오프라인';
-
-        // 응답 시간 업데이트
-        const responseTimeEl = document.getElementById(`response-time-${serverId}`);
-        responseTimeEl.textContent = `${status.responseTime}ms`;
-
-        // 상태 코드 업데이트
-        const statusCodeEl = document.getElementById(`status-code-${serverId}`);
-        statusCodeEl.textContent = status.statusCode || 'N/A';
-
-        // 마지막 확인 시간 업데이트
-        const lastCheckEl = document.getElementById(`last-check-${serverId}`);
-        lastCheckEl.textContent = this.formatTime(status.timestamp);
-
         // 에러 메시지 업데이트
         const errorEl = document.getElementById(`error-${serverId}`);
         if (status.error) {
-            errorEl.textContent = `오류: ${status.error}`;
+            errorEl.textContent = `${status.error} (${status.responseTime}ms)`;
             errorEl.style.display = 'block';
         } else {
             errorEl.style.display = 'none';

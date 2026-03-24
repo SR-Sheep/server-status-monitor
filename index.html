@@ -7,46 +7,65 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>서버 상태 모니터링 대시보드</h1>
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-label">총 서버</div>
-                    <div class="stat-value" id="total-servers">0</div>
+    <div class="layout">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>서버 모니터링</h1>
+            </div>
+
+            <div class="stats-section">
+                <h2>통계</h2>
+
+                <div class="stat-item total">
+                    <div class="stat-icon">●</div>
+                    <div>
+                        <div class="stat-label">총 서버</div>
+                        <div class="stat-value" id="total-servers">0</div>
+                    </div>
                 </div>
-                <div class="stat-card online">
-                    <div class="stat-label">온라인</div>
-                    <div class="stat-value" id="online-servers">0</div>
+
+                <div class="stat-item online">
+                    <div class="stat-icon">●</div>
+                    <div>
+                        <div class="stat-label">온라인</div>
+                        <div class="stat-value" id="online-servers">0</div>
+                    </div>
                 </div>
-                <div class="stat-card offline">
-                    <div class="stat-label">오프라인</div>
-                    <div class="stat-value" id="offline-servers">0</div>
+
+                <div class="stat-item offline">
+                    <div class="stat-icon">●</div>
+                    <div>
+                        <div class="stat-label">오프라인</div>
+                        <div class="stat-value" id="offline-servers">0</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">가동률</div>
-                    <div class="stat-value" id="uptime-percentage">0%</div>
+
+                <div class="stat-item uptime">
+                    <div class="stat-icon">●</div>
+                    <div>
+                        <div class="stat-label">가동률</div>
+                        <div class="stat-value" id="uptime-percentage">0%</div>
+                    </div>
                 </div>
             </div>
-            <div class="controls">
+
+            <div class="sidebar-footer">
                 <button id="refresh-button" class="refresh-btn">
                     <span class="refresh-icon">⟳</span> 새로고침
                 </button>
                 <div class="last-updated">
-                    마지막 업데이트: <span id="last-updated-time">-</span>
+                    <small>업데이트: <span id="last-updated-time">-</span></small>
                 </div>
             </div>
-        </header>
+        </aside>
 
-        <main>
+        <!-- Main Content -->
+        <main class="main-content">
             <div class="server-grid" id="server-grid">
                 <!-- Server cards will be dynamically inserted here -->
             </div>
         </main>
-
-        <footer>
-            <p>폐쇄망 서버 상태 모니터링 시스템 v1.0</p>
-        </footer>
     </div>
 
     <script src="app.js"></script>
