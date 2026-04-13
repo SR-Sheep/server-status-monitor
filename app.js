@@ -4,6 +4,8 @@ class ServerMonitor {
         this.servers = [];
         this.serverStatuses = new Map();
         this.intervals = new Map();
+        this.currentMode = 'no-cors'; // 기본값: no-cors 모드
+        this.currentFilter = 'all'; // 기본값: 모든 서버 표시
         this.init();
     }
 
@@ -58,7 +60,10 @@ class ServerMonitor {
             <div class="server-header">
                 <div class="status-indicator"></div>
                 <div class="server-info-wrapper">
-                    <div class="server-name">${server.name}</div>
+                    <div class="server-name-row">
+                        <div class="server-name">${server.name}</div>
+                        <div class="server-status-code" id="status-code-${server.id}"></div>
+                    </div>
                     <div class="server-url">${server.url}</div>
                 </div>
             </div>
@@ -87,10 +92,10 @@ class ServerMonitor {
             const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 
             try {
-                // no-cors 모드로 GET 요청 (CORS preflight 회피)
+                // 현재 모드에 따라 fetch 요청
                 const response = await fetch(server.url, {
                     method: 'GET',
-                    mode: 'no-cors',
+                    mode: this.currentMode,
                     cache: 'no-cache',
                     signal: controller.signal
                 });
@@ -98,14 +103,41 @@ class ServerMonitor {
                 clearTimeout(timeoutId);
                 const responseTime = Date.now() - startTime;
 
-                // no-cors 모드에서는 응답을 받았다는 것 자체가 서버 온라인을 의미
-                return {
-                    status: 'online',
-                    statusCode: 'opaque',
-                    responseTime: responseTime,
-                    error: null,
-                    timestamp: new Date()
-                };
+                // CORS 모드일 때는 status code 확인 가능
+                if (this.currentMode === 'cors') {
+                    const statusCode = response.status;
+                    let statusType = 'success';
+
+                    // status code에 따른 분류
+                    if (statusCode >= 200 && statusCode < 300) {
+                        statusType = 'success'; // 2xx: 성공
+                    } else if (statusCode >= 300 && statusCode < 400) {
+                        statusType = 'redirect'; // 3xx: 리다이렉트
+                    } else if (statusCode >= 400 && statusCode < 500) {
+                        statusType = 'client-error'; // 4xx: 클라이언트 오류
+                    } else if (statusCode >= 500) {
+                        statusType = 'server-error'; // 5xx: 서버 오류
+                    }
+
+                    return {
+                        status: 'online',
+                        statusCode: statusCode,
+                        statusType: statusType,
+                        responseTime: responseTime,
+                        error: null,
+                        timestamp: new Date()
+                    };
+                } else {
+                    // no-cors 모드에서는 응답을 받았다는 것 자체가 서버 온라인을 의미
+                    return {
+                        status: 'online',
+                        statusCode: 'opaque',
+                        statusType: 'opaque',
+                        responseTime: responseTime,
+                        error: null,
+                        timestamp: new Date()
+                    };
+                }
             } catch (fetchError) {
                 clearTimeout(timeoutId);
                 const responseTime = Date.now() - startTime;
@@ -114,6 +146,7 @@ class ServerMonitor {
                 return {
                     status: 'offline',
                     statusCode: null,
+                    statusType: null,
                     responseTime: responseTime,
                     error: '연결 실패',
                     timestamp: new Date()
@@ -125,6 +158,7 @@ class ServerMonitor {
             return {
                 status: 'offline',
                 statusCode: null,
+                statusType: null,
                 responseTime: responseTime,
                 error: error.message,
                 timestamp: new Date()
@@ -183,6 +217,14 @@ class ServerMonitor {
         this.updateServerCard(server.id, status);
         this.updateStats();
         this.updateLastUpdatedTime();
+
+        // 필터 재적용
+        this.applyCurrentFilter();
+    }
+
+    //현재 필터 재적용
+    applyCurrentFilter() {
+        this.setFilter(this.currentFilter);
     }
 
     //서버 카드 업데이트
@@ -193,6 +235,16 @@ class ServerMonitor {
         // 카드 상태 클래스 업데이트
         card.className = `server-card ${status.status}`;
 
+        // Status Code 배지 업데이트 (status code가 존재할 때만)
+        const statusCodeEl = document.getElementById(`status-code-${serverId}`);
+        if (status.statusCode && status.statusCode !== 'opaque' && status.status === 'online') {
+            statusCodeEl.textContent = status.statusCode;
+            statusCodeEl.className = `server-status-code ${status.statusType}`;
+            statusCodeEl.style.display = 'inline-block';
+        } else {
+            statusCodeEl.style.display = 'none';
+        }
+
         // 상태 메시지 업데이트
         const statusEl = document.getElementById(`status-${serverId}`);
         if (status.status === 'checking') {
@@ -200,7 +252,16 @@ class ServerMonitor {
             statusEl.className = 'status-message checking';
             statusEl.style.display = 'block';
         } else if (status.status === 'online') {
-            statusEl.textContent = `접속 확인 완료 (${status.responseTime}ms)`;
+            // status code가 있을 때만 상세 표시
+            let message = '';
+            if (status.statusCode && status.statusCode !== 'opaque') {
+                const statusText = this.getStatusCodeText(status.statusCode, status.statusType);
+                message = `${statusText} (${status.responseTime}ms)`;
+            } else {
+                message = `접속 확인 완료 (${status.responseTime}ms)`;
+            }
+
+            statusEl.textContent = message;
             statusEl.className = 'status-message online';
             statusEl.style.display = 'block';
         } else if (status.status === 'offline') {
@@ -208,6 +269,19 @@ class ServerMonitor {
             statusEl.className = 'status-message offline';
             statusEl.style.display = 'block';
         }
+    }
+
+    //Status Code 텍스트 반환
+    getStatusCodeText(statusCode, statusType) {
+        const typeLabels = {
+            'success': '✓ 정상',
+            'redirect': '↪ 리다이렉트',
+            'client-error': '⚠ 클라이언트 오류',
+            'server-error': '✗ 서버 오류',
+            'opaque': '접속 확인 완료'
+        };
+
+        return `${typeLabels[statusType] || '접속 확인 완료'} [${statusCode}]`;
     }
     //시간 형식 시간:분:초
     formatTime(date) {
@@ -292,6 +366,71 @@ class ServerMonitor {
             setTimeout(() => {
                 icon.style.transform = 'rotate(0deg)';
             }, 500);
+        });
+
+        // 모드 선택 버튼 이벤트
+        const noCorsBtn = document.getElementById('mode-no-cors');
+        const corsBtn = document.getElementById('mode-cors');
+
+        noCorsBtn.addEventListener('click', () => {
+            this.switchMode('no-cors');
+            noCorsBtn.classList.add('active');
+            corsBtn.classList.remove('active');
+        });
+
+        corsBtn.addEventListener('click', () => {
+            this.switchMode('cors');
+            corsBtn.classList.add('active');
+            noCorsBtn.classList.remove('active');
+        });
+
+        // 필터 버튼 이벤트
+        const statItems = document.querySelectorAll('.stat-item[data-filter]');
+        statItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const filter = item.getAttribute('data-filter');
+                this.setFilter(filter);
+
+                // active 클래스 토글
+                statItems.forEach(si => si.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+    }
+
+    //모드 전환
+    switchMode(mode) {
+        if (this.currentMode === mode) return;
+
+        this.currentMode = mode;
+        console.log(`모드 전환: ${mode}`);
+
+        // 모든 서버 상태 즉시 재확인
+        this.refreshAll();
+    }
+
+    //필터 설정
+    setFilter(filter) {
+        this.currentFilter = filter;
+        console.log(`필터 설정: ${filter}`);
+
+        // 서버 카드 필터링
+        this.servers.forEach(server => {
+            const card = document.getElementById(`server-${server.id}`);
+            if (!card) return;
+
+            const status = this.serverStatuses.get(server.id);
+            let shouldShow = false;
+
+            if (filter === 'all') {
+                shouldShow = true;
+            } else if (filter === 'online' && status && status.status === 'online') {
+                shouldShow = true;
+            } else if (filter === 'offline' && status && status.status === 'offline') {
+                shouldShow = true;
+            }
+
+            card.style.display = shouldShow ? 'block' : 'none';
         });
     }
 
