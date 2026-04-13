@@ -12,9 +12,13 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h1>서버 모니터링</h1>
+                <div class="mode-selector">
+                    <button id="mode-no-cors" class="mode-btn active">NO-CORS</button>
+                    <button id="mode-cors" class="mode-btn">CORS</button>
+                </div>
             </div>
             <div class="stats-section">
-                <div class="stat-item total">
+                <div class="stat-item total active" data-filter="all">
                     <div class="stat-icon">●</div>
                     <div>
                         <div class="stat-label">총 서버</div>
@@ -22,7 +26,7 @@
                     </div>
                 </div>
 
-                <div class="stat-item online">
+                <div class="stat-item online" data-filter="online">
                     <div class="stat-icon">●</div>
                     <div>
                         <div class="stat-label">온라인</div>
@@ -30,7 +34,7 @@
                     </div>
                 </div>
 
-                <div class="stat-item offline">
+                <div class="stat-item offline" data-filter="offline">
                     <div class="stat-icon">●</div>
                     <div>
                         <div class="stat-label">오프라인</div>
