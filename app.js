@@ -396,6 +396,16 @@ class ServerMonitor {
                 item.classList.add('active');
             });
         });
+
+        // 툴팁 위치 동적 조정
+        const infoIcon = document.getElementById('mode-info');
+        const tooltip = infoIcon.querySelector('.tooltip');
+
+        infoIcon.addEventListener('mouseenter', () => {
+            const rect = infoIcon.getBoundingClientRect();
+            tooltip.style.top = `${rect.bottom + 8}px`;
+            tooltip.style.left = `${rect.left}px`;
+        });
     }
 
     //모드 전환
