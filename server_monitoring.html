@@ -11,7 +11,17 @@
     <div class="layout">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h1>서버 모니터링</h1>
+                <div class="header-title">
+                    <h1>서버 모니터링</h1>
+                    <div class="info-icon" id="mode-info">ⓘ
+                        <div class="tooltip">
+                            <strong>모드 선택 안내</strong>
+                            <p><strong>NO-CORS:</strong> Status code 확인 불가하지만 CORS 제한 없이 모든 서버 확인 가능</p>
+                            <p><strong>CORS:</strong> Status code 확인 가능하지만 서버에서 CORS 헤더 설정 필요</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; color: #999;">💡 CORS는 브라우저 보안 정책으로, 다른 도메인의 리소스 접근을 제한합니다. (Status code 값을 자세히 알려면 서버 필요)</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="mode-selector">
                     <button id="mode-no-cors" class="mode-btn active">NO-CORS</button>
                     <button id="mode-cors" class="mode-btn">CORS</button>
