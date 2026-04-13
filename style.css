@@ -32,11 +32,91 @@ body {
     border-bottom: 1px solid #3a3a3a;
 }
 
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
 .sidebar-header h1 {
     font-size: 1.3em;
     color: #ffffff;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin: 0;
+}
+
+.info-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    color: #888;
+    font-size: 0.85em;
+    font-weight: bold;
+    cursor: help;
+    transition: all 0.2s ease;
+}
+
+.info-icon:hover {
+    color: #3b82f6;
+}
+
+.info-icon:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.tooltip {
+    position: fixed;
+    top: auto;
+    left: auto;
+    transform: translateY(-5px);
+    padding: 12px 14px;
+    background: #2a2a2a;
+    border: 1px solid #4a4a4a;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    width: 280px;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    font-size: 0.75em;
+    line-height: 1.5;
+    pointer-events: none;
+}
+
+.tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 20px;
+    transform: translateX(0);
+    border: 6px solid transparent;
+    border-bottom-color: #4a4a4a;
+}
+
+.tooltip strong {
+    display: block;
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.tooltip p {
+    color: #c0c0c0;
+    margin: 6px 0;
+}
+
+.tooltip p strong {
+    display: inline;
+    color: #3b82f6;
+    margin: 0;
+    font-size: 1em;
 }
 
 .mode-selector {
@@ -102,13 +182,17 @@ body {
     border-bottom: none;
 }
 
-.stat-item:hover {
+.stat-item[data-filter]:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
 .stat-item.active {
     background: rgba(59, 130, 246, 0.15);
     border-color: transparent;
+}
+
+.stat-item.uptime {
+    cursor: default;
 }
 
 .stat-icon {
